@@ -9,7 +9,7 @@ create table cases (
   counterparty_domain text,
   issue_category text, -- broad category of the dispute
   issue text,
-  case_real_id_hash bytea, -- using global salt so it can be crossed in the escrow DB
+  real_id_hash bytea, -- using global salt so it can be crossed in the escrow DB
   incident_date date,
   dispute_date date,
   arbitration_date date,
@@ -19,10 +19,11 @@ create table cases (
   subjective_inmyfavor boolean,
   submitter_initiated boolean,
   arbitration_agency text,
+  arbitration_agency_domain text,
   submitter_choose_agency boolean,
   arbitration_state text, -- two-digit state
   created timestamp not null default now(),
   modified timestamp not null default now()
 );
 
-create index cases_edit_key on cases (edit_key);
+create index cases_real_id_hash on cases (real_id_hash);
