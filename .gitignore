@@ -1,3 +1,5 @@
 *.ods
 .direnv/
 __pycache__/
+*.zip
+static/bootstrap.min.css
