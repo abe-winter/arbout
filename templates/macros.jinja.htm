@@ -1,0 +1,10 @@
+{% macro yesno(name, options=[('yes', "Yes"), ('no', "No")]) %}
+  {% for value, label in options %}
+    <br>
+    <label><input type="radio" name="{{name}}" value={{value}} required> {{label}}</label>
+  {% endfor %}
+{% endmacro %}
+
+{% macro option_warn() %}
+  <div class="alert alert-warning"><b>Warning</b>: this is optional and could expose you to extra risk if the counterparty thinks you violated confidentiality</div>
+{% endmacro %}

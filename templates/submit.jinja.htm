@@ -1,0 +1,155 @@
+{% from 'macros.jinja.htm' import yesno, option_warn %}
+{% extends "base.jinja.htm" %}
+{% block title %}submit case{% endblock %}
+{% block container %}
+<div class="clearfix"><div class="float-right"><a href="/">⚖️ Arbout</a></div></div>
+<h1>📋 Submit a case</h1>
+<br>
+<form>
+  <details class="form-group" open>
+    <summary class="h3">Counterparty</summary>
+    <div class="form-group"><label>
+      Counterparty name
+      <p class="text-muted">Who was the dispute with?</p>
+      <input class="form-control" type="text" required>
+    </label></div>
+    <div class="form-group"><label>
+      Counterparty website
+      <p class="text-muted">We use this to more easily identify companies and group cases.</p>
+      <input class="form-control" type="text">
+    </label></div>
+    <div class="form-group">
+      Are you the plaintiff?
+      {{ yesno('plaintiff', [('yes', "Yes, I filed the dispute"), ('no', "No, the other party summoned me to arbitration")]) }}
+    </div>
+  </details>
+  <hr>
+
+  <details class="form-group" open>
+    <summary class="h3">Dispute</summary>
+    <div class="form-group"><label>
+      Issue category
+      <p class="text-muted">General type of the dispute. What was wrong with the product or service?</p>
+      <select class="form-control" name="issue_cat" required>
+        {% for cat in categories %}<option value="{{cat.key}}">{{cat.label}}</option>{% endfor %}
+      </select>
+    </label></div>
+    <div class="form-group"><label>
+      Issue details (optional)
+      <p class="text-muted">What was in dispute? Product name, service name, vendor shortcoming. This field is currently not used, but in a future version of Arbout, this will be merged with other similar answers and displayed in search results.</p>
+      <input class="form-control" name="issue_det" placeholder="Issue details (optional)">
+    </label></div>
+    <div class="form-group"><label>
+      Terms or contract link (optional)
+      <p class="text-muted">Link to the contract or terms of service that governed the deal</p>
+      <input class="form-control" name="terms_link" placeholder="Terms or contract link (optional)">
+    </label></div>
+    <div class="form-group">
+      Did you write any of your contract with the counterparty?
+      {{ yesno('you_negotiate', [('yes', "Yes"), ('no', "No, they wrote it entirely by themselves")]) }}
+    </div>
+  </details>
+  <hr>
+
+  <details class="form-group" open>
+    <summary class="h3">Outcome</summary>
+    <div class="form-group"><label>
+      How much money did you seek in the settlement? (In dollars)
+      <p class="text-muted">Because this amount can be used to identify you individually, we don't publish it in search results unless several other cases have similar amounts. We'll also show statistics about the settlement like percentage rewarded.</p>
+      <input class="form-control" name="sought_dollars" type="number">
+    </label></div>
+    <div class="form-group"><label>
+      Actual settlement amount
+      <input class="form-control" name="settlement_dollars" type="number">
+    </label></div>
+    <div class="form-group">
+      In your opinion, was the outcome in your favor?
+      {{ yesno('favor') }}
+    </div>
+    <div class="form-group">
+      In your opinion, was the arbitration process and outcome fair?
+      {{ yesno('fair') }}
+    </div>
+  </details>
+  <hr>
+
+  <details class="form-group" open>
+    <summary class="h3">Dates</summary>
+    <div class="form-group"><label>
+      Month of incident
+      <p class="text-muted">
+        Or if it was an ongoing problem, when it started, as best you remember.
+        These dates will only be shown in search results in large groups of cases, so your case can't be identified individually.
+        We also use these dates to track how long arbitration cases take to process.
+      </p>
+      <input class="form-control" name="incident_date" type="month">
+    </label></div>
+    <div class="form-group"><label>
+      Month the plaintiff raised a dispute with the defendant
+      <input class="form-control" name="dispute_date" type="month">
+    </label></div>
+    <div class="form-group"><label>
+      Month arbitration was filed
+      <input class="form-control" name="file_date" type="month">
+    </label></div>
+    <div class="form-group"><label>
+      Month of arbitration
+      <input class="form-control" name="arb_date" type="month">
+    </label></div>
+  </details>
+  <hr>
+
+  <details class="form-group" open>
+    <summary class="h3">Case details</summary>
+    <div class="form-group"><label>
+      Agency (optional)
+      <p class="text-muted">The name of the agency that arbitrated your dispute.</p>
+      <input class="form-control" name="agency" placeholder="Agency (optional)">
+    </label></div>
+    {# todo: autocomplete #}
+    <div class="form-group"><label>
+      State
+      <p class="text-muted">For now, you can only submit cases for US states and territories.</p>
+      <select class="form-control" name="state">
+        {% for short, long in states %}<option value="short">{{short}} - {{long}}</option>{% endfor %}
+      </select>
+    </label></div>
+    <div class="form-group">
+      Did you choose the arbitration agency?
+      {{ yesno('chose', [('yes', "Yes, I chose it freely"), ('yes_list', "I chose it from a list of options provided by the counterparty"), ('no', "No")]) }}
+    </div>
+    <div class="form-group"><label>
+      Case ID (optional)
+      <p class="text-muted">
+        The case number or ID that the arbitration agency gave to the case. This won't be published in search results. It will be stored in an encrypted format in our database.
+        There's a good reason to give us a case ID: it makes it easier for us to place the burden of proof on the arbitration agency in case of a dispute.
+      </p>
+      {{ option_warn() }}
+      <input class="form-control" name="case_real_id" placeholder="Case ID (optional)">
+    </label></div>
+  </details>
+  <hr>
+
+  <details class="form-group" open>
+    <summary class="h3">Your details</summary>
+    <div class="form-group"><label>
+      Email (optional)
+      <p class="text-muted">Give us your email if you want to be contacted in case of a dispute.</p>
+      {{ option_warn() }}
+      <input class="form-control" name="email" type="email" placeholder="Email (optional)">
+    </label></div>
+    <div class="form-group"><label>
+      Password (optional)
+      <p class="text-muted">If you set a password, you'll receive an edit link that allows you to make changes to this page later</p>
+      <input class="form-control" name="password" type="password" placeholder="Password (optional)">
+    </label></div>
+  </details>
+  <hr>
+  <h3>Affirm and submit</h3>
+  <p class="text-muted">If you edit this text, your submission will be rejected. If you want to change the terms of the affirmation, please contact us.</p>
+  <textarea class="form-control" type="text" name="affirm" rows="8">{{affirmation}}</textarea>
+  <br>
+  <button role="submit" class="btn btn-primary">Affirm and submit</button>
+  <hr>
+</form>
+{% endblock container %}

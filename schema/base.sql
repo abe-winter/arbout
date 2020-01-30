@@ -12,6 +12,7 @@ create table cases (
   real_id_hash bytea, -- using global salt so it can be crossed in the escrow DB
   incident_date date,
   dispute_date date,
+  file_date date,
   arbitration_date date,
   sought_dollars int,
   settlement_dollars int,
@@ -22,6 +23,8 @@ create table cases (
   arbitration_agency_domain text,
   submitter_choose_agency boolean,
   arbitration_state text, -- two-digit state
+  draft_contract boolean, -- did submitter have a role in drafting the contract
+  terms_link text, -- url to terms of service / contract
   created timestamp not null default now(),
   modified timestamp not null default now()
 );
