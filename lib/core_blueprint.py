@@ -2,6 +2,7 @@
 
 import base64, contextlib, json, os, re
 from dataclasses import dataclass
+from datetime import date
 import flask, psycopg2.pool
 from marshmallow import Schema, fields, validate, validates, ValidationError
 
@@ -112,6 +113,12 @@ def insert_stmt(table, returning, fields):
 def handle_validation_error(err):
   return flask.render_template('invalid.jinja.htm', messages=err.messages)
 
+def parse_month(raw):
+  # todo: do this in marshmallow
+  if raw is None:
+    return raw
+  return date(int(raw[:4]), int(raw[5:7]), 1)
+
 @CORE.route('/submit', methods=['POST'])
 def post_submit():
   # ValidationError here gets caught by middleware
@@ -128,17 +135,16 @@ def post_submit():
     'settlement_dollars': parsed.get('settlement_dollars'),
     'subjective_inmyfavor': parsed.get('favor'),
     'subjective_fair': parsed.get('fair'),
-    'incident_date': parsed.get('incident_date'),
-    'dispute_date': parsed.get('dispute_date'),
-    'file_date': parsed.get('file_date'),
-    'arbitration_date': parsed.get('arb_date'),
+    'incident_date': parse_month(parsed.get('incident_date')),
+    'dispute_date': parse_month(parsed.get('dispute_date')),
+    'file_date': parse_month(parsed.get('file_date')),
+    'arbitration_date': parse_month(parsed.get('arb_date')),
     'arbitration_agency': parsed.get('agency'),
     # todo: agency domain
     'arbitration_state': parsed.get('state'),
     'submitter_choose_agency': parsed.get('chose'),
     'affirm': parsed.get('affirm'),
   }
-  raise NotImplementedError
   # '': parsed.get('email'), # and salt # email_hash
   # '': parsed.get('case_real_id'), # and salt # real_id_hash
   # '': parsed.get('password'), # with custom salt
@@ -147,7 +153,7 @@ def post_submit():
   with withcon() as con, con.cursor() as cur:
     cur.execute(insert_stmt('cases', 'caseid', db_fields), db_fields)
     con.commit()
-
+  return flask.render_template('after_submit.jinja.htm')
 
 @CORE.route('/search')
 def get_search():
