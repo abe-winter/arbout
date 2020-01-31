@@ -5,7 +5,7 @@
 <div class="clearfix"><div class="float-right"><a href="/">⚖️ Arbout</a></div></div>
 <h1>📋 Submit a case</h1>
 <br>
-<form>
+<form method="POST">
   <details class="form-group" open>
     <summary class="h3">Counterparty</summary>
     <div class="form-group"><label>
@@ -19,8 +19,8 @@
       <input class="form-control" type="text">
     </label></div>
     <div class="form-group">
-      Are you the plaintiff?
-      {{ yesno('plaintiff', [('yes', "Yes, I filed the dispute"), ('no', "No, the other party summoned me to arbitration")]) }}
+      Are you the claimant?
+      {{ yesno('claimant', [('yes', "Yes, I filed the dispute"), ('no', "No, the other party summoned me to arbitration")]) }}
     </div>
   </details>
   <hr>
@@ -85,7 +85,7 @@
       <input class="form-control" name="incident_date" type="month">
     </label></div>
     <div class="form-group"><label>
-      Month the plaintiff raised a dispute with the defendant
+      Month the claimant raised a dispute with the respondent
       <input class="form-control" name="dispute_date" type="month">
     </label></div>
     <div class="form-group"><label>
@@ -94,7 +94,7 @@
     </label></div>
     <div class="form-group"><label>
       Month of arbitration
-      <input class="form-control" name="arb_date" type="month">
+      <input class="form-control" name="arb_date" type="month" required>
     </label></div>
   </details>
   <hr>
@@ -111,7 +111,7 @@
       State
       <p class="text-muted">For now, you can only submit cases for US states and territories.</p>
       <select class="form-control" name="state">
-        {% for short, long in states %}<option value="short">{{short}} - {{long}}</option>{% endfor %}
+        {% for short, long in states %}<option value="{{short}}">{{short}} - {{long}}</option>{% endfor %}
       </select>
     </label></div>
     <div class="form-group">
@@ -140,7 +140,7 @@
     </label></div>
     <div class="form-group"><label>
       Password (optional)
-      <p class="text-muted">If you set a password, you'll receive an edit link that allows you to make changes to this page later</p>
+      <p class="text-muted">If you set a password, you'll receive an edit link that allows you to make changes to this page later, or delete it</p>
       <input class="form-control" name="password" type="password" placeholder="Password (optional)">
     </label></div>
   </details>

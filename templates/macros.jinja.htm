@@ -1,7 +1,7 @@
-{% macro yesno(name, options=[('yes', "Yes"), ('no', "No")]) %}
+{% macro yesno(name, options=[('yes', "Yes"), ('no', "No")], required=False) %}
   {% for value, label in options %}
     <br>
-    <label><input type="radio" name="{{name}}" value={{value}} required> {{label}}</label>
+    <label><input type="radio" name="{{name}}" value={{value}} {{'required' if required}}> {{label}}</label>
   {% endfor %}
 {% endmacro %}
 
