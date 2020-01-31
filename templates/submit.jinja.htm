@@ -14,13 +14,13 @@
       <input class="form-control" type="text" required>
     </label></div>
     <div class="form-group"><label>
-      Counterparty website
+      Counterparty website (optional)
       <p class="text-muted">We use this to more easily identify companies and group cases.</p>
       <input class="form-control" type="text">
     </label></div>
     <div class="form-group">
       Are you the claimant?
-      {{ yesno('claimant', [('yes', "Yes, I filed the dispute"), ('no', "No, the other party summoned me to arbitration")]) }}
+      {{ yesno('claimant', [('yes', "Yes, I filed the dispute"), ('no', "No, the other party summoned me to arbitration")], True) }}
     </div>
   </details>
   <hr>
@@ -76,7 +76,7 @@
   <details class="form-group" open>
     <summary class="h3">Dates</summary>
     <div class="form-group"><label>
-      Month of incident
+      Month of incident (optional)
       <p class="text-muted">
         Or if it was an ongoing problem, when it started, as best you remember.
         These dates will only be shown in search results in large groups of cases, so your case can't be identified individually.
@@ -85,11 +85,11 @@
       <input class="form-control" name="incident_date" type="month">
     </label></div>
     <div class="form-group"><label>
-      Month the claimant raised a dispute with the respondent
+      Month the claimant raised a dispute with the respondent (optional)
       <input class="form-control" name="dispute_date" type="month">
     </label></div>
     <div class="form-group"><label>
-      Month arbitration was filed
+      Month arbitration was filed (optional)
       <input class="form-control" name="file_date" type="month">
     </label></div>
     <div class="form-group"><label>

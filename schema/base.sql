@@ -25,6 +25,7 @@ create table cases (
   arbitration_state text, -- two-digit state
   draft_contract boolean, -- did submitter have a role in drafting the contract
   terms_link text, -- url to terms of service / contract
+  affirm text, -- affirmation text uploaded by user
   created timestamp not null default now(),
   modified timestamp not null default now()
 );

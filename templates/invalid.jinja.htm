@@ -1,0 +1,15 @@
+{% extends "base.jinja.htm" %}
+{% block title %}validation error{% endblock %}
+{% block container %}
+<h1>🛑 Validation error</h1>
+<h2>Something was wrong with your request</h2>
+<p>The following fields had problems:</p>
+<table class="table">
+  {% for field, errs in messages.items() %}
+  <tr>
+    <td>{{field}}<td>
+    <td>{{', '.join(errs)}}<td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock container %}
