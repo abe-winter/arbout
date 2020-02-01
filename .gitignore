@@ -3,3 +3,4 @@
 __pycache__/
 *.zip
 static/bootstrap.min.css
+.mypy_cache/

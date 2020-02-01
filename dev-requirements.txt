@@ -1,3 +1,4 @@
 pytest
 pylint
 automig==0.0.19
+mypy==0.761

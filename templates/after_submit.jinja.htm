@@ -1,6 +1,8 @@
+{% from 'macros.jinja.htm' import home_link %}
 {% extends "base.jinja.htm" %}
 {% block title %}submission received{% endblock %}
 {% block container %}
+{{ home_link() }}
 <h1>Submission received</h1>
 <p>Information about index inclusion</p>
 <p>Todo: edit link if you posted a password</p>

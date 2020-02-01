@@ -1,8 +1,8 @@
-{% from 'macros.jinja.htm' import yesno, option_warn %}
+{% from 'macros.jinja.htm' import yesno, option_warn, home_link %}
 {% extends "base.jinja.htm" %}
 {% block title %}submit case{% endblock %}
 {% block container %}
-<div class="clearfix"><div class="float-right"><a href="/">⚖️ Arbout</a></div></div>
+{{ home_link() }}
 <h1>📋 Submit a case</h1>
 <br>
 <form method="POST">

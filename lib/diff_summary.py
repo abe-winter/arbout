@@ -2,14 +2,14 @@
 
 import itertools
 from dataclasses import dataclass
-from typing import List
+from typing import List, Dict, Tuple
 from . import search
 from .search import CaseRow
 
 def counterparty_key(row: CaseRow):
   return ('domain', row.counterparty_domain) if row.counterparty_domain else ('name', row.counterparty)
 
-def diff_group_counterparty(rows: List[CaseRow]):
+def diff_group_counterparty(rows: List[CaseRow]) -> Dict[Tuple[str, str], List[CaseRow]]:
   """Grouping key is (counterparty_domain or counterparty).
   Respects global GROUP_THRESHOLD by stripping smaller groups.
   """
@@ -31,7 +31,7 @@ class Bracket:
   lower: int
   upper: int
 
-def round_bucket(count) -> [int, int]:
+def round_bucket(count) -> Bracket:
   "round a count to a bracket"
   if count < 1:
     raise ValueError("round() takes values >= 1, you passed", count)
@@ -68,4 +68,5 @@ class Summary:
 
 def diff_summarize_counterparty(rows) -> Summary:
   "operates on each dict value of diff_group_counterparty ret"
+
   raise NotImplementedError
