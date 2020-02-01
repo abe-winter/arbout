@@ -1,0 +1,6 @@
+.direnv/
+__pycache__/
+*.zip
+*.ods
+.git/
+.mypy_cache/

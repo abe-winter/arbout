@@ -1,0 +1,10 @@
+test:
+  variables:
+    IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+  after_script:
+  - docker rmi $IMAGE_TAG
+  script:
+  - docker build -t IMAGE_TAG .
+  - docker run --rm $IMAGE_TAG pylint lib
+  - docker run --rm $IMAGE_TAG mypy lib
+  - docker run --rm $IMAGE_TAG pytest

@@ -68,5 +68,4 @@ class Summary:
 
 def diff_summarize_counterparty(rows) -> Summary:
   "operates on each dict value of diff_group_counterparty ret"
-
   raise NotImplementedError
