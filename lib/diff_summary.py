@@ -45,6 +45,12 @@ class Bracket:
   lower: int
   upper: int
 
+  def __lt__(self, other):
+    return (self.lower, self.upper) < (other.lower, other.upper)
+
+  def __hash__(self):
+    return hash((self.lower, self.upper))
+
   @classmethod
   def round(cls, count: int) -> Bracket:
     "round a count to a bracket"
@@ -59,18 +65,21 @@ class ApproxLabel:
   label: Union[str, int, Bracket]
   bracket: Bracket
 
-def make_labels(values: Union[List, Generator]) -> List[ApproxLabel]:
-  "summarize attr from rows according to group_threshold"
-  return [
-    ApproxLabel(value, Bracket.round(count))
-    for value, count in collections.Counter(value for value in values if value is not None).items()
-    if count >= search.GROUP_THRESHOLD
-  ]
+  @classmethod
+  def make(cls, values: Union[List, Generator]) -> List[ApproxLabel]:
+    "summarize attr from rows according to group_threshold"
+    ret = [
+      cls(value, Bracket.round(count))
+      # note: sorted() below instead of most_common() so we don't leak non-rounded counts
+      for value, count in sorted(collections.Counter(value for value in values if value is not None).items())
+      if count >= search.GROUP_THRESHOLD
+    ]
+    return sorted(ret, reverse=True, key=lambda approx: approx.bracket)
 
 @dataclass
 class Summary:
   total: Bracket
-  removed: Bracket # 'yes' means records were removed after a correctness or other dispute
+  removed: Optional[Bracket] # 'yes' means records were removed after a correctness or other dispute
   agencies: List[ApproxLabel]
   issue_cats: List[ApproxLabel]
   arbitration_years: List[ApproxLabel]
@@ -80,17 +89,18 @@ class Summary:
   chose_agency: List[ApproxLabel]
   states: List[ApproxLabel]
 
-def diff_summarize_counterparty(rows: List[CaseRow]) -> Summary:
+def summarize(rows: List[CaseRow]) -> Summary:
   "rolls up a list of cases, giving more details when the threshold is met"
+  removed = sum(row.removed for row in rows)
   return Summary(
     total=Bracket.round(len(rows)),
-    removed=Bracket.round(sum(row.removed for row in rows)),
-    agencies=make_labels(row.arbitration_agency for row in rows),
-    issue_cats=make_labels(row.issue_category for row in rows),
-    arbitration_years=make_labels(row.arbitration_date.year for row in rows if row.arbitration_date),
-    settlement_dollars=make_labels(Bracket.round(row.settlement_dollars) for row in rows if row.settlement_dollars is not None),
-    fair=make_labels(row.subjective_fair for row in rows),
-    chose_agency=make_labels(row.submitter_choose_agency for row in rows),
-    drafted=make_labels(row.draft_contract for row in rows),
-    states=make_labels(row.arbitration_state for row in rows),
+    removed=Bracket.round(removed) if removed else None,
+    agencies=ApproxLabel.make(row.arbitration_agency for row in rows),
+    issue_cats=ApproxLabel.make(row.issue_category for row in rows),
+    arbitration_years=ApproxLabel.make(row.arbitration_date.year for row in rows if row.arbitration_date),
+    settlement_dollars=ApproxLabel.make(Bracket.round(row.settlement_dollars) for row in rows if row.settlement_dollars is not None),
+    fair=ApproxLabel.make(row.subjective_fair for row in rows),
+    chose_agency=ApproxLabel.make(row.submitter_choose_agency for row in rows),
+    drafted=ApproxLabel.make(row.draft_contract for row in rows),
+    states=ApproxLabel.make(row.arbitration_state for row in rows),
   )

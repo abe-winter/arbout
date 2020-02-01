@@ -1,6 +1,7 @@
+from datetime import date
 import pytest
 from lib import diff_summary, search
-from lib.diff_summary import Bracket, CounterpartyLabel
+from lib.diff_summary import ApproxLabel, Bracket, CounterpartyLabel
 
 def test_round():
   pairs = [
@@ -36,5 +37,34 @@ def test_diff_group_counterparty(monkeypatch):
   assert {k: len(v) for k, v in diff_summary.diff_group_counterparty(rows).items()} == \
     {CounterpartyLabel('domain', 'hey.com'): 2}
 
-def test_diff_summarize_counterparty():
-  raise NotImplementedError
+def test_ApproxLabel(monkeypatch):
+  monkeypatch.setattr(search, 'GROUP_THRESHOLD', 2)
+  assert ApproxLabel.make([1, 1, 2]) == [ApproxLabel(label=1, bracket=Bracket(lower=1, upper=9))]
+  assert ApproxLabel.make(['a', 'a', 'a', 'b', 'b'] + ['c'] * 10 + ['d'] * 20) == [
+    ApproxLabel(label='d', bracket=Bracket(lower=20, upper=29)),
+    ApproxLabel(label='c', bracket=Bracket(lower=10, upper=19)),
+    ApproxLabel(label='a', bracket=Bracket(lower=1, upper=9)),
+    ApproxLabel(label='b', bracket=Bracket(lower=1, upper=9)),
+  ]
+
+def test_summarize(monkeypatch):
+  monkeypatch.setattr(search, 'GROUP_THRESHOLD', 2)
+  rows = [
+    search.CaseRow(counterparty='', arbitration_agency='ABC', issue_category='what1', arbitration_date=date(2020, 1, 1), settlement_dollars=1000, subjective_fair=False, draft_contract=False, submitter_choose_agency=False, arbitration_state='NY'),
+    search.CaseRow(counterparty='', arbitration_agency='ABC', issue_category='what2', arbitration_date=date(2020, 1, 1), settlement_dollars=1000, subjective_fair=False, draft_contract=False, submitter_choose_agency=False, arbitration_state='NY'),
+    search.CaseRow(counterparty='', arbitration_agency='ABC', issue_category='what3', arbitration_date=date(2020, 1, 1), settlement_dollars=1000, subjective_fair=False, draft_contract=False, submitter_choose_agency=False, arbitration_state='NY'),
+    search.CaseRow(counterparty='', arbitration_agency='ABD', issue_category='what4', arbitration_date=date(2020, 1, 1), settlement_dollars=1000, subjective_fair=False, draft_contract=False, submitter_choose_agency=False, arbitration_state='NY'),
+    search.CaseRow(counterparty='', arbitration_agency='ABD', issue_category='what5', arbitration_date=date(2020, 1, 1), settlement_dollars=1000, subjective_fair=False, draft_contract=False, submitter_choose_agency=False, arbitration_state='NY'),
+  ]
+  assert diff_summary.summarize(rows) == diff_summary.Summary(
+    total=Bracket(lower=1, upper=9),
+    removed=None,
+    agencies=[ApproxLabel('ABC', Bracket(1, 9)), ApproxLabel('ABD', Bracket(1, 9))],
+    issue_cats=[],
+    arbitration_years=[ApproxLabel(2020, Bracket(1, 9))],
+    settlement_dollars=[ApproxLabel(Bracket(1000, 1099), Bracket(1, 9))],
+    fair=[ApproxLabel(False, Bracket(1, 9))],
+    drafted=[ApproxLabel(False, Bracket(1, 9))],
+    chose_agency=[ApproxLabel(False, Bracket(1, 9))],
+    states=[ApproxLabel('NY', Bracket(1, 9))]
+  )
