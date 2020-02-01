@@ -3,7 +3,7 @@
 from __future__ import annotations # for classmethod return type
 import collections, itertools
 from dataclasses import dataclass
-from typing import List, Dict, Generator, Union
+from typing import List, Dict, Generator, Optional, Union
 from . import search
 from .search import CaseRow
 
