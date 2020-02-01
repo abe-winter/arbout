@@ -21,7 +21,7 @@ create table cases (
   submitter_initiated boolean,
   arbitration_agency text,
   arbitration_agency_domain text,
-  submitter_choose_agency boolean,
+  submitter_choose_agency text, -- (yes, yes_list, no)
   arbitration_state text, -- two-digit state
   draft_contract boolean, -- did submitter have a role in drafting the contract
   terms_link text, -- url to terms of service / contract

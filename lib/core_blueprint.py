@@ -1,15 +1,15 @@
 "core_blueprint.py -- flask Blueprint for core functionality"
 
-import base64, contextlib, json, os, re
+import binascii, contextlib, json, os, re
 from dataclasses import dataclass
 from datetime import date
-import flask, psycopg2.pool
+import flask, psycopg2.pool, scrypt
 from marshmallow import Schema, fields, validate, validates, ValidationError
 
 CORE = flask.Blueprint('core', __name__)
 STATES = json.load(open(os.path.join(os.path.split(__file__)[0], 'states.json')))['states']
 POOL = None
-GLOBAL_SALT = base64.b64decode(os.environ['ARB_SALT'])
+GLOBAL_SALT = binascii.unhexlify(os.environ['ARB_SALT'])
 
 def init_pool(setup_state):
   global POOL
@@ -55,25 +55,22 @@ def get_submit():
 def yesno(required=False):
   return fields.Str(validate=validate.OneOf(['yes', 'no']), required=required)
 
-def month(required=False):
-  return fields.Str(validate=validate.Regexp(r'\d{4}-\d{2}'), required=required)
-
 class SubmissionSchema(Schema):
   counterparty = fields.Str()
-  counterparty_domain = fields.URL()
+  counterparty_domain = fields.Str()
   claimant = yesno(True)
   issue_cat = fields.Str(validate=validate.OneOf([cat.key for cat in CATEGORIES]), required=True)
   issue_det = fields.Str()
-  terms_link = fields.URL()
+  terms_link = fields.Str()
   you_negotiate = yesno()
   sought_dollars = fields.Int()
   settlement_dollars = fields.Int()
   favor = yesno()
   fair = yesno()
-  incident_date = month()
-  dispute_date = month()
-  file_date = month()
-  arb_date = month(True)
+  incident_date = fields.DateTime(format='%Y-%m')
+  dispute_date = fields.DateTime(format='%Y-%m')
+  file_date = fields.DateTime(format='%Y-%m')
+  arb_date = fields.DateTime(format='%Y-%m', required=True)
   agency = fields.Str()
   state = fields.Str(validate=validate.OneOf([row[0] for row in STATES]), required=True)
   chose = fields.Str(validate=validate.OneOf(['yes', 'yes_list', 'no']))
@@ -113,11 +110,10 @@ def insert_stmt(table, returning, fields):
 def handle_validation_error(err):
   return flask.render_template('invalid.jinja.htm', messages=err.messages)
 
-def parse_month(raw):
-  # todo: do this in marshmallow
-  if raw is None:
-    return raw
-  return date(int(raw[:4]), int(raw[5:7]), 1)
+def yesno_null(value):
+  "cast non-null yesno to bool"
+  # todo: do this with marshmallow
+  return {'yes': True, 'no': False, None: None}[value]
 
 @CORE.route('/submit', methods=['POST'])
 def post_submit():
@@ -126,30 +122,33 @@ def post_submit():
   db_fields = {
     'counterparty': parsed.get('counterparty'),
     'counterparty_domain': parsed.get('counterparty_domain'),
-    'submitter_initiated': parsed.get('claimant'),
+    'submitter_initiated': yesno_null(parsed.get('claimant')),
     'issue_category': parsed.get('issue_cat'),
     'issue': parsed.get('issue_det'),
     'terms_link': parsed.get('terms_link'),
-    'draft_contract': parsed.get('you_negotiate'),
+    'draft_contract': yesno_null(parsed.get('you_negotiate')),
     'sought_dollars': parsed.get('sought_dollars'),
     'settlement_dollars': parsed.get('settlement_dollars'),
-    'subjective_inmyfavor': parsed.get('favor'),
-    'subjective_fair': parsed.get('fair'),
-    'incident_date': parse_month(parsed.get('incident_date')),
-    'dispute_date': parse_month(parsed.get('dispute_date')),
-    'file_date': parse_month(parsed.get('file_date')),
-    'arbitration_date': parse_month(parsed.get('arb_date')),
+    'subjective_inmyfavor': yesno_null(parsed.get('favor')),
+    'subjective_fair': yesno_null(parsed.get('fair')),
+    'incident_date': parsed.get('incident_date').date(),
+    'dispute_date': parsed.get('dispute_date').date(),
+    'file_date': parsed.get('file_date').date(),
+    'arbitration_date': parsed.get('arb_date').date(),
     'arbitration_agency': parsed.get('agency'),
     # todo: agency domain
     'arbitration_state': parsed.get('state'),
     'submitter_choose_agency': parsed.get('chose'),
     'affirm': parsed.get('affirm'),
   }
-  # '': parsed.get('email'), # and salt # email_hash
-  # '': parsed.get('case_real_id'), # and salt # real_id_hash
-  # '': parsed.get('password'), # with custom salt
-  # password_salt
-  # password_hash
+  if 'email' in parsed:
+    db_fields['email_hash'] = scrypt.hash(parsed['email'], GLOBAL_SALT)
+  if 'case_real_id' in parsed:
+    db_fields['real_id_hash'] = scrypt.hash(parsed['case_real_id'], GLOBAL_SALT)
+  if 'password' in parsed:
+    salt = os.urandom(12)
+    db_fields['password_salt'] = salt
+    db_fields['password_hash'] = scrypt.hash(parsed['password'], salt)
   with withcon() as con, con.cursor() as cur:
     cur.execute(insert_stmt('cases', 'caseid', db_fields), db_fields)
     con.commit()
