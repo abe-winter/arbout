@@ -5,10 +5,10 @@ from dataclasses import dataclass
 from typing import Optional
 
 GROUP_THRESHOLD = 10
-REPORT_THRESHOLD = 20
-PCT_THRESHOLD = 0.25 # i.e. 25%
+PCT_THRESHOLD = 0.1 # i.e. 10%
 
 class Search:
+  "constraints for a search"
   counterparty: Optional[str]
   counterparty_domain: Optional[str]
   start_date: Optional[date]
@@ -19,7 +19,8 @@ class Search:
 
 @dataclass
 class CaseRow:
-  counterparty: Optional[str] = None
+  "representation of database row"
+  counterparty: str
   counterparty_domain: Optional[str] = None
   issue_category: Optional[str] = None
   incident_date: Optional[date] = None
@@ -36,3 +37,4 @@ class CaseRow:
   arbitration_state: Optional[str] = None
   draft_contract: Optional[bool] = None
   terms_link: Optional[str] = None
+  removed: bool = False

@@ -26,6 +26,7 @@ create table cases (
   draft_contract boolean, -- did submitter have a role in drafting the contract
   terms_link text, -- url to terms of service / contract
   affirm text, -- affirmation text uploaded by user
+  removed boolean not null default false,
   created timestamp not null default now(),
   modified timestamp not null default now()
 );

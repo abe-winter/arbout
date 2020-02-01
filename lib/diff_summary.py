@@ -1,22 +1,36 @@
 "diff_summary.py -- differential-aware search results summarization"
 
-import itertools
+from __future__ import annotations # for classmethod return type
+import collections, itertools
 from dataclasses import dataclass
-from typing import List, Dict, Tuple
+from typing import List, Dict, Generator, Union
 from . import search
 from .search import CaseRow
 
-def counterparty_key(row: CaseRow):
-  return ('domain', row.counterparty_domain) if row.counterparty_domain else ('name', row.counterparty)
+@dataclass
+class CounterpartyLabel:
+  "groupable domain / name"
+  kind: str
+  value: str
 
-def diff_group_counterparty(rows: List[CaseRow]) -> Dict[Tuple[str, str], List[CaseRow]]:
+  def __lt__(self, other):
+    return (self.kind, self.value) < (other.kind, other.value)
+
+  def __hash__(self):
+    return hash((self.kind, self.value))
+
+  @classmethod
+  def key(cls, row: CaseRow) -> CounterpartyLabel:
+    return cls('domain', row.counterparty_domain) if row.counterparty_domain else cls('name', row.counterparty)
+
+def diff_group_counterparty(rows: List[CaseRow]) -> Dict[CounterpartyLabel, List[CaseRow]]:
   """Grouping key is (counterparty_domain or counterparty).
   Respects global GROUP_THRESHOLD by stripping smaller groups.
   """
-  sorted_ = sorted(rows, key=counterparty_key)
+  sorted_ = sorted(rows, key=CounterpartyLabel.key)
   ret = {
     key: list(inner_rows)
-    for key, inner_rows in itertools.groupby(sorted_, key=counterparty_key)
+    for key, inner_rows in itertools.groupby(sorted_, key=CounterpartyLabel.key)
   }
   too_small = []
   for key, val in ret.items():
@@ -31,41 +45,52 @@ class Bracket:
   lower: int
   upper: int
 
-def round_bucket(count) -> Bracket:
-  "round a count to a bracket"
-  if count < 1:
-    raise ValueError("round() takes values >= 1, you passed", count)
-  bucket = 10 if count < 100 else 100
-  bottom = count - (count % bucket)
-  return Bracket(bottom or 1, bottom + bucket - 1)
+  @classmethod
+  def round(cls, count: int) -> Bracket:
+    "round a count to a bracket"
+    if count < 1:
+      raise ValueError("round() takes values >= 1, you passed", count)
+    bucket = 10 if count < 100 else 100
+    bottom = count - (count % bucket)
+    return cls(bottom or 1, bottom + bucket - 1)
 
+@dataclass
 class ApproxLabel:
-  rounded_count: int
-  label: str
+  label: Union[str, int, Bracket]
+  bracket: Bracket
 
-class ApproxRange:
-  rounded_count: int
-  other: bool # if true, bottom & top are ignored. is there an 'either' type?
-  bottom: float
-  top: float
+def make_labels(values: Union[List, Generator]) -> List[ApproxLabel]:
+  "summarize attr from rows according to group_threshold"
+  return [
+    ApproxLabel(value, Bracket.round(count))
+    for value, count in collections.Counter(value for value in values if value is not None).items()
+    if count >= search.GROUP_THRESHOLD
+  ]
 
+@dataclass
 class Summary:
-  counterparty_key_type: str
-  counterparty: str
+  total: Bracket
+  removed: Bracket # 'yes' means records were removed after a correctness or other dispute
   agencies: List[ApproxLabel]
   issue_cats: List[ApproxLabel]
-  issues: List[ApproxLabel]
-  incident_years: List[ApproxLabel]
-  dispute_years: List[ApproxLabel]
   arbitration_years: List[ApproxLabel]
-  sought_dollars: List[ApproxRange]
-  settle_over_sought: List[ApproxRange]
+  settlement_dollars: List[ApproxLabel]
   fair: List[ApproxLabel]
-  in_my_favor: List[ApproxLabel]
-  removed: List[ApproxLabel] # 'yes' means records were removed after a correctness or other dispute
+  drafted: List[ApproxLabel]
   chose_agency: List[ApproxLabel]
   states: List[ApproxLabel]
 
-def diff_summarize_counterparty(rows) -> Summary:
-  "operates on each dict value of diff_group_counterparty ret"
-  raise NotImplementedError
+def diff_summarize_counterparty(rows: List[CaseRow]) -> Summary:
+  "rolls up a list of cases, giving more details when the threshold is met"
+  return Summary(
+    total=Bracket.round(len(rows)),
+    removed=Bracket.round(sum(row.removed for row in rows)),
+    agencies=make_labels(row.arbitration_agency for row in rows),
+    issue_cats=make_labels(row.issue_category for row in rows),
+    arbitration_years=make_labels(row.arbitration_date.year for row in rows if row.arbitration_date),
+    settlement_dollars=make_labels(Bracket.round(row.settlement_dollars) for row in rows if row.settlement_dollars is not None),
+    fair=make_labels(row.subjective_fair for row in rows),
+    chose_agency=make_labels(row.submitter_choose_agency for row in rows),
+    drafted=make_labels(row.draft_contract for row in rows),
+    states=make_labels(row.arbitration_state for row in rows),
+  )
