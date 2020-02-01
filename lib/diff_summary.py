@@ -1,18 +1,30 @@
 "diff_summary.py -- differential-aware search results summarization"
 
-import math
+import math, itertools
 from dataclasses import dataclass
 from typing import List
+from . import search
+from .search import CaseRow
 
-def counterparty_key(row):
+def counterparty_key(row: CaseRow):
   return ('domain', row.counterparty_domain) if row.counterparty_domain else ('name', row.counterparty)
 
-def diff_group_counterparty(rows):
+def diff_group_counterparty(rows: List[CaseRow]):
   """Grouping key is (counterparty_domain or counterparty).
-  Respects global THRESHOLDs.
+  Respects global GROUP_THRESHOLD by stripping smaller groups.
   """
   sorted_ = sorted(rows, key=counterparty_key)
-  return dict(itertools.groupby(sorted_, key=counterparty_key))
+  ret = {
+    key: list(inner_rows)
+    for key, inner_rows in itertools.groupby(sorted_, key=counterparty_key)
+  }
+  too_small = []
+  for key, val in ret.items():
+    if len(val) < search.GROUP_THRESHOLD:
+      too_small.append(key)
+  for key in too_small:
+    del ret[key]
+  return ret
 
 @dataclass
 class Bracket:

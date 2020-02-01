@@ -1,5 +1,5 @@
 import pytest
-from lib import diff_summary
+from lib import diff_summary, search
 from lib.diff_summary import Bracket
 
 def test_round():
@@ -24,3 +24,17 @@ def test_round():
   assert actual == expected
   with pytest.raises(ValueError):
     diff_summary.round(0)
+
+def test_diff_group_counterparty(monkeypatch):
+  monkeypatch.setattr(search, 'GROUP_THRESHOLD', 2)
+  rows = [
+    diff_summary.CaseRow(counterparty='hey'),
+    diff_summary.CaseRow(counterparty_domain='hey.com'),
+    diff_summary.CaseRow(counterparty='hey', counterparty_domain='hey.com'),
+    diff_summary.CaseRow(counterparty='3'),
+  ]
+  assert {k: len(v) for k, v in diff_summary.diff_group_counterparty(rows).items()} == \
+    {('domain', 'hey.com'): 2}
+
+def test_diff_summarize_counterparty():
+  raise NotImplementedError
