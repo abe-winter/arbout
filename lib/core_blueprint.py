@@ -1,20 +1,14 @@
 "core_blueprint.py -- flask Blueprint for core functionality"
 
-import binascii, contextlib, json, os, re
+import binascii, json, os
 from dataclasses import dataclass
-from datetime import date
-import flask, psycopg2.pool, scrypt
-from marshmallow import Schema, fields, validate, validates, ValidationError
+import flask, scrypt
+from marshmallow import Schema, fields, validate, ValidationError
+from .util import init_pool, withcon
 
 CORE = flask.Blueprint('core', __name__)
 STATES = json.load(open(os.path.join(os.path.split(__file__)[0], 'states.json')))['states']
-POOL = None
 GLOBAL_SALT = binascii.unhexlify(os.environ['ARB_SALT'])
-
-def init_pool(setup_state):
-  global POOL
-  if POOL is None:
-    POOL = psycopg2.pool.ThreadedConnectionPool(0, 4, os.environ['AUTOMIG_CON'])
 
 # todo: would rather this happened at app startup vs registration i.e. import.
 # But before_first_request is too late.
@@ -79,7 +73,8 @@ class SubmissionSchema(Schema):
   password = fields.Str()
   affirm = fields.Str(required=True)
 
-  def valid_affirm(self, value):
+  @staticmethod
+  def valid_affirm(value):
     if value.replace('\r\n', '\n') != AFFIRMATION:
       raise ValidationError('invalid affirmation')
 
@@ -87,20 +82,11 @@ def strip_empty(form):
   "return copy of form with empty fields removed"
   return {key: val for key, val in form.items() if val}
 
-@contextlib.contextmanager
-def withcon():
-  "helper to get / return a DB pool connection"
+def insert_stmt(table, returning, db_fields):
+  "helper to generate an insert stmt from db_fields dict"
   # todo: move to util
-  con = POOL.getconn()
-  try: yield con
-  finally:
-    POOL.putconn(con)
-
-def insert_stmt(table, returning, fields):
-  "helper to generate an insert stmt from fields dict"
-  # todo: move to util
-  keys = ', '.join(fields)
-  subs = ', '.join(f"%({key})s" for key in fields)
+  keys = ', '.join(db_fields)
+  subs = ', '.join(f"%({key})s" for key in db_fields)
   stmt = f"insert into {table} ({keys}) values ({subs})"
   if returning:
     stmt += f" returning {returning}"

@@ -16,3 +16,6 @@ $(BOOTSTRAP_ZIP):
 
 static/bootstrap.min.css: $(BOOTSTRAP_ZIP)
 	unzip -j $(BOOTSTRAP_ZIP) bootstrap-$(BOOTSTRAP_VERSION)-dist/css/bootstrap.min.css -d static
+
+lint:
+	pylint lib

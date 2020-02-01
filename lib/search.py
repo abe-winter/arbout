@@ -1,10 +1,8 @@
 "search.py -- convert searches to queries"
 
-import itertools
 from datetime import date
 from dataclasses import dataclass
 from typing import Optional
-from datetime import date
 
 GROUP_THRESHOLD = 10
 REPORT_THRESHOLD = 20

@@ -1,6 +1,6 @@
 "diff_summary.py -- differential-aware search results summarization"
 
-import math, itertools
+import itertools
 from dataclasses import dataclass
 from typing import List
 from . import search
@@ -31,8 +31,8 @@ class Bracket:
   lower: int
   upper: int
 
-def round(count) -> [int, int]:
-  "round a count to a bracket. floating point math causes some slippage at 1000 but this is fine for approximation"
+def round_bucket(count) -> [int, int]:
+  "round a count to a bracket"
   if count < 1:
     raise ValueError("round() takes values >= 1, you passed", count)
   bucket = 10 if count < 100 else 100
