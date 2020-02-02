@@ -6,6 +6,11 @@ WORKDIR /arbout
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 
+# static css
+COPY Makefile .
+RUN mkdir static
+RUN make static/bootstrap.min.css && rm *.zip
+
 # files
 COPY lib lib/
 COPY static static/
