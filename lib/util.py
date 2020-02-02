@@ -1,6 +1,8 @@
 "common & util"
 
+from __future__ import annotations # for classmethod return type
 import contextlib, os
+from dataclasses import dataclass
 import psycopg2.pool
 
 POOL = None
@@ -31,3 +33,24 @@ def insert_stmt(table, returning, db_fields):
   if returning:
     stmt += f" returning {returning}"
   return stmt
+
+@dataclass
+class Bracket:
+  "rounding helper"
+  lower: int
+  upper: int
+
+  def __lt__(self, other):
+    return (self.lower, self.upper) < (other.lower, other.upper)
+
+  def __hash__(self):
+    return hash((self.lower, self.upper))
+
+  @classmethod
+  def round(cls, count: int) -> Bracket:
+    "round a count to a bracket"
+    if count < 1:
+      raise ValueError("round() takes values >= 1, you passed", count)
+    bucket = 10 if count < 100 else 100
+    bottom = count - (count % bucket)
+    return cls(bottom or 1, bottom + bucket - 1)

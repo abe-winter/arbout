@@ -5,6 +5,7 @@ from dataclasses import dataclass
 import flask, scrypt
 from marshmallow import Schema, fields, validate, ValidationError
 from .util import init_pool, insert_stmt, strip_empty, withcon
+from . import diff_summary, search
 
 CORE = flask.Blueprint('core', __name__)
 STATES = json.load(open(os.path.join(os.path.split(__file__)[0], 'states.json')))['states']
@@ -129,11 +130,17 @@ def post_submit():
 
 @CORE.route('/search')
 def get_search():
-  raise NotImplementedError
+  return flask.render_template('search.jinja.htm', categories=CATEGORIES, states=STATES)
 
 @CORE.route('/search', methods=['POST'])
 def post_search():
-  raise NotImplementedError
+  # todo: look into marshmallow-dataclass so we're not relying on psycopg2 / libpq for sanitization
+  rows = search.search(search.Search(**strip_empty(flask.request.form)))
+  groups = diff_summary.diff_group_counterparty(rows)
+  summaries = [diff_summary.summarize(key, rows) for key, rows in groups.items()]
+  # note: sorting by party key so stable sort doesn't reveal relative sizes
+  summaries.sort(key=lambda summary: (summary.total, summary.key))
+  return flask.render_template('serp.jinja.htm', summaries=summaries)
 
 @CORE.route('/disputes')
 def disputes():

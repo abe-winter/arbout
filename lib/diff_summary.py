@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from typing import List, Dict, Generator, Optional, Union
 from . import search
 from .search import CaseRow
+from .util import Bracket
 
 @dataclass
 class CounterpartyLabel:
@@ -41,26 +42,6 @@ def diff_group_counterparty(rows: List[CaseRow]) -> Dict[CounterpartyLabel, List
   return ret
 
 @dataclass
-class Bracket:
-  lower: int
-  upper: int
-
-  def __lt__(self, other):
-    return (self.lower, self.upper) < (other.lower, other.upper)
-
-  def __hash__(self):
-    return hash((self.lower, self.upper))
-
-  @classmethod
-  def round(cls, count: int) -> Bracket:
-    "round a count to a bracket"
-    if count < 1:
-      raise ValueError("round() takes values >= 1, you passed", count)
-    bucket = 10 if count < 100 else 100
-    bottom = count - (count % bucket)
-    return cls(bottom or 1, bottom + bucket - 1)
-
-@dataclass
 class ApproxLabel:
   label: Union[str, int, Bracket]
   bracket: Bracket
@@ -78,6 +59,7 @@ class ApproxLabel:
 
 @dataclass
 class Summary:
+  key: CounterpartyLabel
   total: Bracket
   removed: Optional[Bracket] # 'yes' means records were removed after a correctness or other dispute
   agencies: List[ApproxLabel]
@@ -89,10 +71,11 @@ class Summary:
   chose_agency: List[ApproxLabel]
   states: List[ApproxLabel]
 
-def summarize(rows: List[CaseRow]) -> Summary:
+def summarize(key: CounterpartyLabel, rows: List[CaseRow]) -> Summary:
   "rolls up a list of cases, giving more details when the threshold is met"
   removed = sum(row.removed for row in rows)
   return Summary(
+    key=key,
     total=Bracket.round(len(rows)),
     removed=Bracket.round(removed) if removed else None,
     agencies=ApproxLabel.make(row.arbitration_agency for row in rows),
