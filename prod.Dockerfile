@@ -19,4 +19,4 @@ COPY app.py .
 
 ENV AUTOMIG_CON postgres://postgres@arbout-db
 EXPOSE 8000
-CMD gunicorn -w 2 -b 0.0.0.0 app:APP
+CMD gunicorn -w 2 -b 0.0.0.0 --access-logfile - --error-logfile - app:APP
