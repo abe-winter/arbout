@@ -4,7 +4,7 @@ import binascii, json, os
 from dataclasses import dataclass
 import flask, scrypt
 from marshmallow import Schema, fields, validate, ValidationError
-from .util import init_pool, withcon
+from .util import init_pool, insert_stmt, strip_empty, withcon
 
 CORE = flask.Blueprint('core', __name__)
 STATES = json.load(open(os.path.join(os.path.split(__file__)[0], 'states.json')))['states']
@@ -78,20 +78,6 @@ class SubmissionSchema(Schema):
     if value.replace('\r\n', '\n') != AFFIRMATION:
       raise ValidationError('invalid affirmation')
 
-def strip_empty(form):
-  "return copy of form with empty fields removed"
-  return {key: val for key, val in form.items() if val}
-
-def insert_stmt(table, returning, db_fields):
-  "helper to generate an insert stmt from db_fields dict"
-  # todo: move to util
-  keys = ', '.join(db_fields)
-  subs = ', '.join(f"%({key})s" for key in db_fields)
-  stmt = f"insert into {table} ({keys}) values ({subs})"
-  if returning:
-    stmt += f" returning {returning}"
-  return stmt
-
 @CORE.errorhandler(ValidationError)
 def handle_validation_error(err):
   return flask.render_template('invalid.jinja.htm', messages=err.messages)
@@ -128,6 +114,7 @@ def post_submit():
     'affirm': parsed.get('affirm'),
   }
   if 'email' in parsed:
+    # todo: hash is wrong here. it's for dispute handling and nothing else -- we need to be able to decrypt it
     db_fields['email_hash'] = scrypt.hash(parsed['email'], GLOBAL_SALT)
   if 'case_real_id' in parsed:
     db_fields['real_id_hash'] = scrypt.hash(parsed['case_real_id'], GLOBAL_SALT)
