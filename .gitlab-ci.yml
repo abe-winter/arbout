@@ -12,3 +12,12 @@ test:
   - docker run --rm $IMAGE_TAG pylint lib
   - docker run --rm $IMAGE_TAG mypy lib
   - docker run --rm $IMAGE_TAG pytest
+
+deploy:
+  environment: local
+  variables:
+    IMAGE_TAG: $CI_REGISTRY_IMAGE/test:$CI_COMMIT_SHORT_SHA
+  when: manual
+  scripts:
+  - docker rm -fv arbout
+  - docker run -d --name arbout -e ARB_SALT=$ARB_SALT -p $ARB_PORT:8000 arbout
