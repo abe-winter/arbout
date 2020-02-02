@@ -5,8 +5,8 @@
   <h1>⚖️ Arbout</h1>
   <h2>The public record for private settlements</h2>
   <p>Arbout is a crowd-sourced public database of arbitration outcomes. It aggregates search results to preserve the confidentiality of individual cases.</p>
-  <p><a class="btn btn-primary" style="font-size: large" href="/submit">📋 Submit a case</a></p>
-  <p><a class="btn btn-primary" style="font-size: large" href="/search">🔎 Search our database</a></p>
+  <p><a class="btn btn-primary" style="font-size: large" href="{{url_for('core.get_submit')}}">📋 Submit a case</a></p>
+  <p><a class="btn btn-primary" style="font-size: large" href="{{url_for('core.get_search')}}">🔎 Search our database</a></p>
 </div>
 <div class="card"><div class="card-body">
   <h3>What is arbitration?</h3>
@@ -23,7 +23,7 @@
 <br>
 <div class="card"><div class="card-body">
   <h3>How do I dispute the information in this database?</h3>
-  <p>We have a robust <a href="/disputes">dispute process</a> and we are committed to the correctness of the aggregate information we serve.</p>
+  <p>We have a robust <a href="{{url_for('core.disputes')}}">dispute process</a> and we are committed to the correctness of the aggregate information we serve.</p>
 </div></div>
 <br>
 <div class="card"><div class="card-body">
