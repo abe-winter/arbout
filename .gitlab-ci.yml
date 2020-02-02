@@ -20,4 +20,4 @@ deploy:
   when: manual
   script:
   - docker rm -fv arbout || echo rm fail
-  - docker run -d --name arbout -e ARB_SALT=$ARB_SALT -e APPLICATION_ROOT=/arbout/ -p $ARB_PORT:8000 --restart unless-stopped $IMAGE_TAG
+  - docker run -d --name arbout -e ARB_SALT=$ARB_SALT -e APPLICATION_ROOT=/arbout/ -e SCRIPT_NAME=/arbout -p $ARB_PORT:8000 --restart unless-stopped $IMAGE_TAG
