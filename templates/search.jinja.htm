@@ -1,0 +1,39 @@
+{% from 'macros.jinja.htm' import home_link, select_state, select_issue_cat %}
+{% extends "base.jinja.htm" %}
+{% block title %}search{% endblock %}
+{% block container %}
+{{ home_link() }}
+<h1>🔎 Search cases</h1>
+<br>
+<form method="POST">
+  <div class="form-group"><label>
+    Party name
+    <input name="party" class="form-control" type="text" placeholder="Party">
+  </label></div>
+  <div class="form-group"><label>
+    Party website
+    <input name="party_domain" class="form-control" type="text" placeholder="Party domain">
+  </label></div>
+  <!-- -->
+  <div class="form-group"><label>
+    Start / end year
+    <input name="start_year" class="form-control" type="number" placeholder="Start year">
+    <input name="end_year" class="form-control" type="number" placeholder="End year">
+  </label></div>
+  <div class="form-group"><label>
+    Minimum settlement size
+    <input name="min_settlement_dollars" class="form-control" type="number" placeholder="Min settlement">
+  </label></div>
+  <div class="form-group"><label>
+    Issue category
+    {{select_issue_cat(categories, include_none=True)}}
+  </label></div>
+  <div class="form-group"><label>
+    Arbitration state
+    <p class="text-muted">State where the arbitration took place</p>
+    {{select_state(states, include_none=True)}}
+  </label></div>
+  <button role="submit" class="btn btn-primary">🔎 Search</button>
+  <hr>
+</form>
+{% endblock container %}

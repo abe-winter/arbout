@@ -1,0 +1,14 @@
+{% from 'macros.jinja.htm' import home_link %}
+{% extends "base.jinja.htm" %}
+{% block title %}search results{% endblock %}
+{% block container %}
+{{ home_link() }}
+<h1>🔎 Search results</h1>
+{% if not summaries %}
+  <div class="alert alert-warning">Empty! Either there were no results or there weren't enough results to summarize</div>
+{% else %}
+  <ul>{% for summary in summaries %}
+    <li>{{ summary }}</li>
+  {% endfor %}</ul>
+{% endif %}
+{% endblock container %}
