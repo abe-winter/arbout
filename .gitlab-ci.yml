@@ -18,6 +18,6 @@ deploy:
   variables:
     IMAGE_TAG: $CI_REGISTRY_IMAGE/test:$CI_COMMIT_SHORT_SHA
   when: manual
-  scripts:
+  script:
   - docker rm -fv arbout
   - docker run -d --name arbout -e ARB_SALT=$ARB_SALT -p $ARB_PORT:8000 arbout
