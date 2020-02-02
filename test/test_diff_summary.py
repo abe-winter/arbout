@@ -56,7 +56,9 @@ def test_summarize(monkeypatch):
     search.CaseRow(counterparty='', arbitration_agency='ABD', issue_category='what4', arbitration_date=date(2020, 1, 1), settlement_dollars=1000, subjective_fair=None, draft_contract=False, submitter_choose_agency=False, arbitration_state='NY'),
     search.CaseRow(counterparty='', arbitration_agency='ABD', issue_category='what5', arbitration_date=date(2020, 1, 1), settlement_dollars=1000, subjective_fair=None, draft_contract=False, submitter_choose_agency=False, arbitration_state='NY'),
   ]
-  assert diff_summary.summarize(rows) == diff_summary.Summary(
+  key = CounterpartyLabel('', '')
+  assert diff_summary.summarize(key, rows) == diff_summary.Summary(
+    key=key,
     total=Bracket(lower=1, upper=9),
     removed=None,
     agencies=[ApproxLabel('ABC', Bracket(1, 9)), ApproxLabel('ABD', Bracket(1, 9))], # testing multiple values
