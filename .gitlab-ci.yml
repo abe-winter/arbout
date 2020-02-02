@@ -20,4 +20,4 @@ deploy:
   when: manual
   script:
   - docker rm -fv arbout
-  - docker run -d --name arbout -e ARB_SALT=$ARB_SALT -p $ARB_PORT:8000 arbout
+  - docker run -d --name arbout -e ARB_SALT=$ARB_SALT -p $ARB_PORT:8000 $IMAGE_TAG
