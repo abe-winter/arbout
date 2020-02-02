@@ -134,3 +134,7 @@ def get_search():
 @CORE.route('/search', methods=['POST'])
 def post_search():
   raise NotImplementedError
+
+@CORE.route('/disputes')
+def disputes():
+  raise NotImplementedError
