@@ -1,4 +1,4 @@
-{% from 'macros.jinja.htm' import yesno, option_warn, home_link %}
+{% from 'macros.jinja.htm' import yesno, option_warn, home_link, select_state, select_issue_cat %}
 {% extends "base.jinja.htm" %}
 {% block title %}submit case{% endblock %}
 {% block container %}
@@ -29,9 +29,7 @@
     <div class="form-group"><label>
       Issue category
       <p class="text-muted">General type of the dispute. What was wrong with the product or service?</p>
-      <select class="form-control" name="issue_cat" required>
-        {% for cat in categories %}<option value="{{cat.key}}">{{cat.label}}</option>{% endfor %}
-      </select>
+      {{select_issue_cat(categories, required=True)}}
     </label></div>
     <div class="form-group"><label>
       Issue details (optional)
@@ -109,9 +107,7 @@
     <div class="form-group"><label>
       State
       <p class="text-muted">For now, you can only submit cases for US states and territories.</p>
-      <select class="form-control" name="state">
-        {% for short, long in states %}<option value="{{short}}">{{short}} - {{long}}</option>{% endfor %}
-      </select>
+      {{select_state(states)}}
     </label></div>
     <div class="form-group">
       Did you choose the arbitration agency?

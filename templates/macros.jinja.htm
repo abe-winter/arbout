@@ -12,3 +12,17 @@
 {% macro home_link() %}
 <div class="clearfix"><div class="float-right"><a href="{{url_for('core.splash')}}">⚖️ Arbout</a></div></div>
 {% endmacro %}
+
+{% macro select_state(states, include_none=False) %}
+<select class="form-control" name="state">
+  {% if include_none %}<option value="">---</option>{% endif %}
+  {% for short, long in states %}<option value="{{short}}">{{short}} - {{long}}</option>{% endfor %}
+</select>
+{% endmacro %}
+
+{% macro select_issue_cat(categories, include_none=False, required=False) %}
+<select class="form-control" name="issue_cat" {{'required' if required}}>
+  {% if include_none %}<option value="">---</option>{% endif %}
+  {% for cat in categories %}<option value="{{cat.key}}">{{cat.label}}</option>{% endfor %}
+</select>
+{% endmacro %}
