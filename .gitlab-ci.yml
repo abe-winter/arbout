@@ -1,6 +1,12 @@
+build:
+  variables:
+    IMAGE_TAG: $CI_REGISTRY_IMAGE/test:$CI_COMMIT_SHORT_SHA
+  script:
+  - docker build -t $IMAGE_TAG -f prod.Dockerfile .
+
 test:
   variables:
-    IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+    IMAGE_TAG: $CI_REGISTRY_IMAGE/test:$CI_COMMIT_SHORT_SHA
   script:
   - docker build -t $IMAGE_TAG .
   - docker run --rm $IMAGE_TAG pylint lib
