@@ -31,8 +31,8 @@ class Search:
   "constraints for a search"
   party: Optional[str] = None
   party_domain: Optional[str] = None
-  start_year: Optional[int] = None
-  end_year: Optional[int] = None
+  start_year: Optional[str] = None
+  end_year: Optional[str] = None
   state: Optional[str] = None
 
   def empty(self):
@@ -43,8 +43,8 @@ class Search:
     where = WhereClause()
     where.add('counterparty', self.party)
     where.add('counterparty_domain', self.party_domain)
-    where.add('start_year', self.start_year, operator='>=', transform='extract(year from arbitration_date)')
-    where.add('end_year', self.end_year, operator='<=', transform='extract(year from arbitration_date)')
+    where.add('start_year', self.start_year and int(self.start_year), operator='>=', transform='extract(year from arbitration_date)')
+    where.add('end_year', self.end_year and int(self.end_year), operator='<=', transform='extract(year from arbitration_date)')
     where.add('arbitration_state', self.state)
     return where
 

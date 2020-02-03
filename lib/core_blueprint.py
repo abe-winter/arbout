@@ -149,10 +149,10 @@ def get_search():
 @CORE.route('/search', methods=['POST'])
 def post_search():
   # todo: look into marshmallow-dataclass so we're not relying on psycopg2 / libpq for sanitization
-  terms = search.Search(**strip_empty(flask.request.form))
-  if terms.empty():
+  params = search.Search(**strip_empty(flask.request.form))
+  if params.empty():
     return 'Error: set at least one search term'
-  rows = search.search(terms)
+  rows = search.search(params)
   groups = diff_summary.diff_group_counterparty(rows)
   summaries = [diff_summary.summarize(key, rows) for key, rows in groups.items()]
   # note: sorting by party key so stable sort doesn't reveal relative sizes
