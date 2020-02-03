@@ -16,4 +16,4 @@ COPY schema schema/
 COPY .git .git/
 
 ARG build_slug
-ENV VERSION $build_slug
+ENV TARGET $build_slug
