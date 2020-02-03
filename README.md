@@ -1,6 +1,6 @@
 # Arbout
 
-Arbout is a database & differential search engine for arbitration outcomes.
+Arbout is a database & differential privacy search engine for arbitration outcomes.
 
 There's a live server hosted at [arbout.org](https://arbout.org).
 
