@@ -2,7 +2,8 @@ create extension if not exists "uuid-ossp";
 
 create table cases (
   caseid uuid primary key default uuid_generate_v4(),
-  email_hash bytea, -- using global salt so this can be looked up
+  email_cipher bytea, -- using global ARB_CRYPT so this can be decrypted in case of dispute
+  email_iv bytea,
   password_salt bytea,
   password_hash bytea,
   counterparty text,

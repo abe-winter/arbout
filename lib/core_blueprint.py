@@ -10,6 +10,7 @@ from . import diff_summary, search
 CORE = flask.Blueprint('core', __name__)
 STATES = json.load(open(os.path.join(os.path.split(__file__)[0], 'states.json')))['states']
 GLOBAL_SALT = binascii.unhexlify(os.environ['ARB_SALT'])
+CRYPT = binascii.unhexlify(os.environ['ARB_CRYPT'])
 
 @CORE.context_processor
 def inject_version():
