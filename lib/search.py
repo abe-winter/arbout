@@ -6,8 +6,6 @@ from typing import List, Optional
 import psycopg2.extras
 from .util import Bracket, withcon
 
-GROUP_THRESHOLD = 10
-
 class WhereClause:
   "builder for whereclause"
 

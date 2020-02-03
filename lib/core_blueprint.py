@@ -42,6 +42,7 @@ CATEGORIES = [
   CatPair('npay', 'Underpaid or paid late'),
   CatPair('other', 'Other'),
 ]
+CAT_LOOKUP = {pair.key: pair.label for pair in CATEGORIES}
 
 AFFIRMATION = """I affirm, on penalty of perjury, that I believe my submission to be (1) accurate and (2) not a duplicate submission.
 
@@ -92,6 +93,9 @@ def yesno_null(value):
   # todo: do this with marshmallow
   return {'yes': True, 'no': False, None: None}[value]
 
+def date_null(value):
+  return value and value.date()
+
 @CORE.route('/submit', methods=['POST'])
 def post_submit():
   # ValidationError here gets caught by middleware
@@ -108,10 +112,10 @@ def post_submit():
     'settlement_dollars': parsed.get('settlement_dollars'),
     'subjective_inmyfavor': yesno_null(parsed.get('favor')),
     'subjective_fair': yesno_null(parsed.get('fair')),
-    'incident_date': parsed.get('incident_date').date(),
-    'dispute_date': parsed.get('dispute_date').date(),
-    'file_date': parsed.get('file_date').date(),
-    'arbitration_date': parsed.get('arb_date').date(),
+    'incident_date': date_null(parsed.get('incident_date')),
+    'dispute_date': date_null(parsed.get('dispute_date')),
+    'file_date': date_null(parsed.get('file_date')),
+    'arbitration_date': date_null(parsed.get('arb_date')),
     'arbitration_agency': parsed.get('agency'),
     # todo: agency domain
     'arbitration_state': parsed.get('state'),
@@ -144,6 +148,13 @@ def post_search():
   summaries = [diff_summary.summarize(key, rows) for key, rows in groups.items()]
   # note: sorting by party key so stable sort doesn't reveal relative sizes
   summaries.sort(key=lambda summary: (summary.total, summary.key))
+  # todo: paging
+  summaries = summaries[:20]
+  for summary in summaries:
+    for approx in summary.issue_cats:
+      approx.label = CAT_LOOKUP.get(approx.label, approx.label)
+    for approx in summary.settlement_dollars:
+      approx.label = f"${approx.label.lower} - ${approx.label.upper}"
   return flask.render_template('serp.jinja.htm', summaries=summaries)
 
 @CORE.route('/disputes')

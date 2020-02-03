@@ -27,7 +27,7 @@ def test_round():
     Bracket.round(0)
 
 def test_diff_group_counterparty(monkeypatch):
-  monkeypatch.setattr(search, 'GROUP_THRESHOLD', 2)
+  monkeypatch.setattr(diff_summary, 'GROUP_THRESHOLD', 2)
   rows = [
     diff_summary.CaseRow(counterparty='hey'),
     diff_summary.CaseRow(counterparty='hey LLC', counterparty_domain='hey.com'),
@@ -38,7 +38,7 @@ def test_diff_group_counterparty(monkeypatch):
     {CounterpartyLabel('domain', 'hey.com'): 2}
 
 def test_ApproxLabel(monkeypatch):
-  monkeypatch.setattr(search, 'GROUP_THRESHOLD', 2)
+  monkeypatch.setattr(diff_summary, 'GROUP_THRESHOLD', 2)
   assert ApproxLabel.make([1, 1, 2]) == [ApproxLabel(label=1, bracket=Bracket(lower=1, upper=9))]
   assert ApproxLabel.make(['a', 'a', 'a', 'b', 'b'] + ['c'] * 10 + ['d'] * 20) == [
     ApproxLabel(label='d', bracket=Bracket(lower=20, upper=29)),
@@ -48,7 +48,7 @@ def test_ApproxLabel(monkeypatch):
   ]
 
 def test_summarize(monkeypatch):
-  monkeypatch.setattr(search, 'GROUP_THRESHOLD', 2)
+  monkeypatch.setattr(diff_summary, 'GROUP_THRESHOLD', 2)
   rows = [
     search.CaseRow(counterparty='', arbitration_agency='ABC', issue_category='what1', arbitration_date=date(2020, 1, 1), settlement_dollars=1000, subjective_fair=False, draft_contract=False, submitter_choose_agency=False, arbitration_state='NY'),
     search.CaseRow(counterparty='', arbitration_agency='ABC', issue_category='what2', arbitration_date=date(2020, 1, 1), settlement_dollars=1000, subjective_fair=None, draft_contract=False, submitter_choose_agency=False, arbitration_state='NY'),

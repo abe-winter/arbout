@@ -3,12 +3,32 @@
 {% block title %}search results{% endblock %}
 {% block container %}
 {{ home_link() }}
+{% macro label_rows(root, rows) %}
+  {% for row in rows %}
+  <tr><td>{{root}}: {{row.label}}</td><td>{{row.bracket.render()}}</td></tr>
+  {% endfor %}
+{% endmacro %}
 <h1>🔎 Search results</h1>
+<p class="text-muted">Note: this version of the software only shows the first 20 results of a search</p>
 {% if not summaries %}
   <div class="alert alert-warning">Empty! Either there were no results or there weren't enough results to summarize</div>
 {% else %}
-  <ul>{% for summary in summaries %}
-    <li>{{ summary }}</li>
-  {% endfor %}</ul>
+  {% for summary in summaries %}
+  <div class="card"><details class="card-body" open>
+    <summary class="h4 card-title">Party: {{summary.key.value}}</summary>
+    <table class="table">
+      <tr><td>Total cases</td> <td>{{summary.total.render()}}</td></tr>
+      {{ label_rows('Agency', summary.agencies) }}
+      {{ label_rows('Issue', summary.issue_cats) }}
+      {{ label_rows('Year', summary.arbitration_years) }}
+      {{ label_rows('Settlement', summary.settlement_dollars) }}
+      {{ label_rows('Subjectively fair', summary.fair) }}
+      {{ label_rows('Submitter drafted agreement', summary.drafted) }}
+      {{ label_rows('Submitter chose agency', summary.chose_agency) }}
+      {{ label_rows('State', summary.statess) }}
+    </table>
+  </details></div>
+  <br>
+  {% endfor %}
 {% endif %}
 {% endblock container %}

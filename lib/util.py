@@ -54,3 +54,6 @@ class Bracket:
     bucket = 10 if count < 100 else 100
     bottom = count - (count % bucket)
     return cls(bottom or 1, bottom + bucket - 1)
+
+  def render(self):
+    return f"{self.lower} - {self.upper}"

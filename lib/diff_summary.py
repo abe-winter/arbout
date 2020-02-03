@@ -4,9 +4,10 @@ from __future__ import annotations # for classmethod return type
 import collections, itertools
 from dataclasses import dataclass
 from typing import List, Dict, Generator, Optional, Union
-from . import search
 from .search import CaseRow
 from .util import Bracket
+
+GROUP_THRESHOLD = 10
 
 @dataclass
 class CounterpartyLabel:
@@ -35,7 +36,7 @@ def diff_group_counterparty(rows: List[CaseRow]) -> Dict[CounterpartyLabel, List
   }
   too_small = []
   for key, val in ret.items():
-    if len(val) < search.GROUP_THRESHOLD:
+    if len(val) < GROUP_THRESHOLD:
       too_small.append(key)
   for key in too_small:
     del ret[key]
@@ -53,7 +54,7 @@ class ApproxLabel:
       cls(value, Bracket.round(count))
       # note: sorted() below instead of most_common() so we don't leak non-rounded counts
       for value, count in sorted(collections.Counter(value for value in values if value is not None).items())
-      if count >= search.GROUP_THRESHOLD
+      if count >= GROUP_THRESHOLD
     ]
     return sorted(ret, reverse=True, key=lambda approx: approx.bracket)
 
