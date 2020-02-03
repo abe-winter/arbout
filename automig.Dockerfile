@@ -4,9 +4,9 @@ FROM python:3.7.6-slim
 
 # deps
 RUN apt-get update
-RUN apt-get install libpq-dev git -qqy
+RUN apt-get install git -qqy
 # note: update this to the latest version if it looks old
-RUN pip install automig[postgres]==0.0.19
+RUN pip install automig[postgres]==0.0.20
 
 # files
 WORKDIR /migrate
