@@ -5,6 +5,10 @@
 {{ home_link() }}
 <h1>📋 Submit a case</h1>
 <br>
+<div class="alert alert-danger">
+  <b>Warning</b>: While our system is intended to keep your individual submission confidential, this is a beta product and that confidentiality is subject to technical and legal risks.
+  Make sure to read our <a href="{{url_for('core.terms')}}">terms</a>.
+</div>
 <form method="POST">
   <details class="form-group" open>
     <summary class="h3">Counterparty</summary>
