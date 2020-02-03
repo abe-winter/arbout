@@ -11,6 +11,10 @@ CORE = flask.Blueprint('core', __name__)
 STATES = json.load(open(os.path.join(os.path.split(__file__)[0], 'states.json')))['states']
 GLOBAL_SALT = binascii.unhexlify(os.environ['ARB_SALT'])
 
+@CORE.context_processor
+def inject_version():
+  return {'version': os.environ.get('VERSION')}
+
 # todo: would rather this happened at app startup vs registration i.e. import.
 # But before_first_request is too late.
 CORE.record(init_pool)

@@ -32,3 +32,11 @@ No legal advice: Nothing in this project shall be construed as legal advice.
 No retaliation: If you run an instance of this project or a substantial clone,
 you must not retaliate against, punish, or otherwise harm submitters to your
 instance, or submitters to any other instance or clone of this project.
+
+Operator responsible for terms: If you run an instance of this project or
+substantial clone, you must review the terms of service and either comply with
+them or modify them.
+
+Transparent build numbers: If you run an instance or clone and set the VERSION
+param or use other means to display a build number, you must really be running
+that build.
