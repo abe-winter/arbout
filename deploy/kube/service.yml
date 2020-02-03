@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: arbout-api
+  labels: &labels
+    app: arbout
+spec:
+  type: NodePort
+  ports:
+  - port: 8000
+    targetPort: 8000
+  selector: *labels
+---
+apiVersion: networking.gke.io/v1beta1
+kind: ManagedCertificate
+metadata:
+  name: arbout
+spec:
+  domains:
+  - arbout.org
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: arbout
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: arbout-ingress-ip
+    networking.gke.io/managed-certificates: arbout
+spec:
+  tls:
+  - hosts:
+    - arbout.org
+    secretName: arbout
+  rules:
+  - host: arbout.org
+    http:
+      paths:
+      - path: /*
+        backend:
+          serviceName: arbout-api
+          servicePort: 8000

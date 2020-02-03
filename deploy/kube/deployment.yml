@@ -1,0 +1,39 @@
+# api-res.yml -- deployment, service etc for the API
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: arbout
+  labels: &labels
+    app: arbout
+spec:
+  replicas: 1
+  selector:
+    matchLabels: *labels
+  template:
+    metadata:
+      labels: *labels
+    spec:
+      containers:
+      - name: arbout
+        image: arbout
+        ports:
+        - containerPort: 8000
+        resources:
+          requests:
+            cpu: 0.05
+            memory: 200M
+        env:
+        - name: AUTOMIG_CON
+          valueFrom: {secretKeyRef: {name: arbout-secrets, key: db_url}}
+        - name: ARB_SALT
+          valueFrom: {secretKeyRef: {name: arbout-secrets, key: global_salt}}
+        - name: ARB_CRYPT
+          valueFrom: {secretKeyRef: {name: arbout-secrets, key: global_crypt}}
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 1
+          periodSeconds: 10
+      imagePullSecrets:
+      - name: regcred

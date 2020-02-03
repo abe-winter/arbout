@@ -1,0 +1,20 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+images:
+- name: arbout
+  newName: repo/name/arbout
+  newTag: a4af7973
+- name: arbout-migrate
+  newName: repo/name/arbout/migrate
+  newTag: a4af7973
+secretGenerator:
+- name: regcred
+  files:
+  - .dockerconfigjson
+  type: kubernetes.io/dockerconfigjson
+- name: arbout-secrets
+  env: secrets.env
+resources:
+- deployment.yml
+- service.yml
+- migrate.yml
