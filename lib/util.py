@@ -69,16 +69,12 @@ def host_is_ip(forwarded_host):
   except socket.error:
     return False
 
-class SSLMiddleware:
-  """Janky HSTS that doesn't work when host is an IP address, i.e. health checks.
+# pylint: disable=inconsistent-return-statements
+def ssl_middleware():
+  """Janky HSTS that doesn't engage when host is an IP address, i.e. health checks.
   Using this instead of flask-talisman because GKE ingress has wrong health check path.
   https://cloud.google.com/kubernetes-engine/docs/concepts/ingress#health_checks
   """
-  def __init__(self, app):
-    self.app = app
-
-  def __call__(self, environ, start_response):
-    req = flask.Request(environ)
-    if not host_is_ip(werkzeug.wsgi.get_host(environ)) and not (req.is_secure or req.headers.get('X-Forwarded-Proto') == 'https'):
-      return flask.request.url.replace('http://', 'https://', 1)
-    return self.app(environ, start_response)
+  req = flask.request
+  if not host_is_ip(werkzeug.wsgi.get_host(req.environ)) and not (req.is_secure or req.headers.get('X-Forwarded-Proto') == 'https'):
+    return flask.redirect(req.url.replace('http://', 'https://', 1))
