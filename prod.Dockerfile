@@ -18,5 +18,7 @@ COPY templates templates/
 COPY app.py .
 
 ENV AUTOMIG_CON postgres://postgres@arbout-db
+ARG build_slug
+ENV VERSION $build_slug
 EXPOSE 8000
 CMD gunicorn -w 2 -b 0.0.0.0 --access-logfile - --error-logfile - app:APP

@@ -2,7 +2,17 @@ build:
   variables:
     IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
   script:
-  - docker build -t $IMAGE_TAG -f prod.Dockerfile .
+  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  - docker build -t $IMAGE_TAG --build-arg build_slug=$CI_COMMIT_SHORT_SHA -f prod.Dockerfile .
+  - docker push $IMAGE_TAG
+
+build_migrate:
+  variables:
+    IMAGE_TAG: $CI_REGISTRY_IMAGE/migrate:$CI_COMMIT_SHORT_SHA
+  script:
+  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  - docker build -f migrate.Dockerfile --build-arg build_slug=$CI_COMMIT_SHORT_SHA -t $IMAGE_TAG .
+  - docker push $IMAGE_TAG
 
 test:
   variables:
