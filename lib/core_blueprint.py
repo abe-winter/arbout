@@ -170,3 +170,14 @@ def disputes():
 @CORE.route('/terms')
 def terms():
   return flask.render_template('terms.jinja.htm')
+
+@CORE.route('/health')
+def get_health():
+  return flask.jsonify({"ok": True})
+
+class IntentionalCrash(Exception):
+  "intentional crash to test error reporting"
+
+@CORE.route('/crash')
+def get_crash():
+  raise IntentionalCrash
