@@ -148,4 +148,8 @@ def post_search():
 
 @CORE.route('/disputes')
 def disputes():
-  raise NotImplementedError
+  return flask.render_template('dispute.jinja.htm')
+
+@CORE.route('/terms')
+def terms():
+  return flask.render_template('terms.jinja.htm')

@@ -1,0 +1,20 @@
+{% from 'macros.jinja.htm' import home_link %}
+{% extends "base.jinja.htm" %}
+{% block title %}disputes{% endblock %}
+{% block container %}
+{{ home_link() }}
+<h1>Disputes</h1>
+<p>If you believe the information in this database to be in error, please <a href="mailto:awinter.public+arboutdispute@gmail.com">email the maintainer</a>.</p>
+<h3>Standard dispute process</h3>
+<p>If you believe that our database contains false or mis-reported cases:</p>
+<ul>
+  <li>If you are an arbitration agency, you may share your entire list of cases along with an affidavit that the list is complete and correct.</li>
+  <li>If you are a party to arbitration, you must additionally share affidavits from each arbitration agency in the list.</li>
+</ul>
+<p>We will hold your case list in strict confidence and, as long as we believe it to be correct, we will only use it to remove false information from our site.</p>
+<p>If we discover your list to be substantially in error, we may restore the cases we removed because of it. We may pursue legal action for fraud or other harms. If a court grants us relief, we may publish the list.</p>
+<hr>
+<h3>Preemptive disputes</h3>
+<p>If you're an agency or a party to many arbitrations and you want to pre-upload your case list for dispute matching, contact us. Our technology doesn't currently support this but we're open to building the extension once we have a partner.</p>
+<hr>
+{% endblock container %}

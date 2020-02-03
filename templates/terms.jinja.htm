@@ -1,0 +1,42 @@
+{% from 'macros.jinja.htm' import home_link %}
+{% extends "base.jinja.htm" %}
+{% block title %}terms and privacy{% endblock %}
+{% block container %}
+{{ home_link() }}
+<h1>Terms of service / privacy notice</h1>
+<h3>No legal advice</h3>
+<p>Nothing you see on this website or the associated open source accounts or message boards should be construed as legal advice.</p>
+<p>It is your responsibility to determine whether the laws and contractual obligations in your particular situation allow you to use this site, whether to submit a case or to search.</p>
+<hr>
+<h3>Assumption of risk</h3>
+<p>As a user, you assume all risk from submitting to this site and from using the search results you find here.</p>
+<hr>
+<h3>Disputes</h3>
+<p>If you think our information is wrong, see <a href="{{url_for('core.disputes')}}">disputes</a>.</p>
+<hr>
+<h3>Privacy of submissions</h3>
+<p>We won't intentionally reveal submissions to a third party unless we are compelled to do so.</p>
+<p>If you've given an email address, you may be contacted in case of a dispute of your case. However, we will attempt to place the burden of proof on the disputing party before we contact you. We won't reveal email addresses or other PII to the counterparty unless compelled.</p>
+<p><u>A non-exhaustive list of circumstances that could lead to your data being revealed:</u></p>
+<ul>
+  <li>Certain kinds of repeat searches or statistical attacks may be able to uncover individual cases.</li>
+  <li>Our cloud vendor, Google, manages our HTTPS certificates, our hosting cluster, and our database. Notwithstanding internal controls at Google, it would be technically trivial for them to examine the individual cases in our database or our visitor logs. If you don't trust Google, don't use this site.</li>
+  <li>We will comply with valid subpoenas or other forms of duress. At our discretion, and depending on the legal resources available to us, we may challenge subpoenas in court or attempt to inform you as soon as possible if your data has been captured by state or other action.</li>
+  <li>A failure in our encryption.</li>
+  <li>A bug or flaw in our differential privacy implementation, or other bugs.</li>
+  <li>Other cyberattacks.</li>
+</ul>
+<hr>
+<h3>Cookies</h3>
+<p>We don't intentionally set cookies, and to our knowledge, no site functionality depends on or benefits from cookies. It's possible that our various open source libraries or frameworks automatically set some cookies. It's possible that our cloud vendor or your ISP are setting cookies on the connection.</p>
+<hr>
+<h3>Cyberattack disclosure policy</h3>
+<p>It's our policy to report cyberattacks and data leaks whenever practical. A non-exhaustive list of reasons we may not report an attack immediately or at all:</p>
+<ul>
+  <li>We are still investigating the attack.</li>
+  <li>Disclosing the attack would expose us to legal liability.</li>
+  <li>Disclosing the attack would endanger other. For example, the attack was a zero-day and we are working with vendors to mitigate the vulnerability before announcing.</li>
+  <li>A law enforcement agency has asked us to postpone announcing while they investigate.</li>
+</ul>
+<hr>
+{% endblock container %}
