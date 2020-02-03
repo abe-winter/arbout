@@ -1,9 +1,9 @@
 "common & util"
 
 from __future__ import annotations # for classmethod return type
-import contextlib, os
+import contextlib, os, socket
 from dataclasses import dataclass
-import psycopg2.pool
+import flask, psycopg2.pool, werkzeug
 
 POOL = None
 
@@ -57,3 +57,28 @@ class Bracket:
 
   def render(self):
     return f"{self.lower} - {self.upper}"
+
+def host_is_ip(forwarded_host):
+  "or localhost"
+  sans_port = forwarded_host.split(':')[0]
+  if sans_port == 'localhost':
+    return True
+  try:
+    socket.inet_aton(sans_port)
+    return True
+  except socket.error:
+    return False
+
+class SSLMiddleware:
+  """Janky HSTS that doesn't work when host is an IP address, i.e. health checks.
+  Using this instead of flask-talisman because GKE ingress has wrong health check path.
+  https://cloud.google.com/kubernetes-engine/docs/concepts/ingress#health_checks
+  """
+  def __init__(self, app):
+    self.app = app
+
+  def __call__(self, environ, start_response):
+    req = flask.Request(environ)
+    if not host_is_ip(werkzeug.wsgi.get_host(environ)) and not (req.is_secure or req.headers.get('X-Forwarded-Proto') == 'https'):
+      return flask.request.url.replace('http://', 'https://', 1)
+    return self.app(environ, start_response)
